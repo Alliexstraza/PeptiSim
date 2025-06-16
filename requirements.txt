@@ -8,3 +8,4 @@ cobra==0.22.1
 optlang==1.6.0
 ruamel.yaml==0.17.21
 gunicorn
+altair==5.0.1
