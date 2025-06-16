@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: simulador-peptideos
+    env: python
+    region: oregon
+    buildCommand: |
+      apt-get update && apt-get install -y libsbml5
+      pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0
