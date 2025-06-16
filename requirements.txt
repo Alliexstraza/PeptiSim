@@ -9,3 +9,4 @@ optlang==1.6.0
 ruamel.yaml==0.17.21
 gunicorn
 altair==5.0.1
+vega_datasets==0.9.0
