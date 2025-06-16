@@ -1,4 +1,4 @@
-streamlit==1.18.1
+ustreamlit==1.18.1
 matplotlib==3.7.1
 pandas==1.5.3
 numpy==1.23.5
@@ -8,5 +8,6 @@ cobra==0.22.1
 optlang==1.6.0
 ruamel.yaml==0.17.21
 gunicorn
-altair==5.0.1
+altair==4.2.0
 vega_datasets==0.9.0
+
