@@ -1,40 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from cobra.io import read_sbml_model
-from cobra import Reaction, Metabolite
+import pickle
 
+# Carrega modelo pronto do disco
 def carregar_modelo():
-    return read_sbml_model("iML1515.xml")
-
-def preparar_modelo(model):
-    model.reactions.get_by_id("EX_glc__D_e").lower_bound = -10
-    model.reactions.get_by_id("EX_o2_e").lower_bound = -20
-
-    try:
-        dna_sc = model.metabolites.get_by_id("dna_supercoiling_c")
-    except KeyError:
-        dna_sc = Metabolite("dna_supercoiling_c", name="DNA Supercoiling (pseudo)", compartment="c")
-        model.add_metabolites([dna_sc])
-
-    if "DNA_GIRASE" not in model.reactions:
-        girase = Reaction("DNA_GIRASE")
-        girase.name = "Simulated DNA Gyrase Activity"
-        girase.lower_bound = 0
-        girase.upper_bound = 1000
-        girase.add_metabolites({dna_sc: 1})
-        model.add_reactions([girase])
-
-    if "D_BIOMASS_GYRASE" not in model.reactions:
-        biomassa_d = Reaction("D_BIOMASS_GYRASE")
-        biomassa_d.name = "Biomass demand for Gyrase Product"
-        biomassa_d.lower_bound = 0
-        biomassa_d.upper_bound = 1000
-        biomassa_d.add_metabolites({dna_sc: -1})
-        model.add_reactions([biomassa_d])
-
-    model.objective = "D_BIOMASS_GYRASE"
-    return model
+    with open("modelo_gambiarra.pkl", "rb") as f:
+        return pickle.load(f)
 
 def calcular_novo_upper_bound(original_ub, Ki, conc):
     if Ki <= 0:
@@ -42,7 +14,7 @@ def calcular_novo_upper_bound(original_ub, Ki, conc):
     return original_ub * (Ki / (Ki + conc))
 
 def simular_crescimento_streamlit(kd_uM, comparar=False):
-    model = preparar_modelo(carregar_modelo())
+    model = carregar_modelo()
     girase = model.reactions.get_by_id("DNA_GIRASE")
     original_ub = girase.upper_bound
 
