@@ -105,7 +105,7 @@ def preparar_modelo(model):
         model.add_reactions([sequestro])
 
     # Biomassa
-    biomassa = model.reactions.get_by_id("BIOMASS_Ec_iML1515_core_53p95M")
+    biomassa = model.reactions.get_by_id("BIOMASS_Ec_iML1515_core_75p37M")
     if dna_out not in biomassa.metabolites:
         biomassa.add_metabolites({dna_out: -0.01})
 
