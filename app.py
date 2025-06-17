@@ -86,7 +86,7 @@ st.download_button(
     mime="text/csv"
 )
 
-    if st.button("⬅️ Voltar"):
+if st.button("⬅️ Voltar"):
         st.session_state['page'] = 'input'
         st.session_state['figura'] = None
         st.experimental_rerun()
