@@ -5,17 +5,7 @@ from cobra.io import read_sbml_model
 from cobra import Reaction, Metabolite
 
 def carregar_modelo():
-    url = "http://bigg.ucsd.edu/static/models/iML1515.xml"
-    filename = "iML1515.xml"
-    try:
-        model = read_sbml_model(filename)
-    except:
-        import requests
-        r = requests.get(url)
-        with open(filename, "wb") as f:
-            f.write(r.content)
-        model = read_sbml_model(filename)
-    return model
+    return read_sbml_model("iML1515.xml")
 
 def preparar_modelo(model):
     model.reactions.get_by_id("EX_glc__D_e").lower_bound = -10
@@ -60,6 +50,7 @@ def simular_crescimento_streamlit(kd_uM, comparar=False):
     concs_M = concs_uM * 1e-6
 
     resultados = []
+    dados_csv = []
 
     inibidores = [("Peptídeo", kd_uM, "blue")]
     if comparar:
@@ -67,13 +58,19 @@ def simular_crescimento_streamlit(kd_uM, comparar=False):
 
     for nome, Ki_uM, cor in inibidores:
         taxas = []
-        for conc in concs_M:
+        for conc_uM, conc_M in zip(concs_uM, concs_M):
             modelo_temp = model.copy()
             Ki_M = Ki_uM * 1e-6
-            novo_ub = calcular_novo_upper_bound(original_ub, Ki_M, conc)
+            novo_ub = calcular_novo_upper_bound(original_ub, Ki_M, conc_M)
             modelo_temp.reactions.get_by_id("DNA_GIRASE").upper_bound = novo_ub
             taxa = modelo_temp.slim_optimize()
-            taxas.append(taxa if taxa is not None else 0)
+            taxa = taxa if taxa is not None else 0
+            taxas.append(taxa)
+            dados_csv.append({
+                "Peptídeo": nome,
+                "Concentração (µM)": conc_uM,
+                "Crescimento (h⁻¹)": taxa
+            })
 
         taxa_controle = taxas[0]
         meia_taxa = taxa_controle * 0.5
@@ -84,7 +81,13 @@ def simular_crescimento_streamlit(kd_uM, comparar=False):
             ic50_val = None
             ic50_label = "Não detectado"
 
+        for linha in dados_csv:
+            if linha["Peptídeo"] == nome:
+                linha["IC50 estimada (µM)"] = ic50_label
+
         resultados.append((nome, taxas, cor, ic50_val, ic50_label))
+
+    df_resultado = pd.DataFrame(dados_csv)
 
     fig, ax = plt.subplots(figsize=(8, 6))
     for nome, taxas, cor, ic50_val, ic50_label in resultados:
@@ -97,18 +100,5 @@ def simular_crescimento_streamlit(kd_uM, comparar=False):
     ax.set_title("Curva de crescimento com inibição da DNA-girase")
     ax.legend()
     ax.grid(True)
-        # Monta DataFrame com os dados
-    df_lista = []
-    for nome, taxas, _, ic50_val, _ in resultados:
-        for conc, taxa in zip(concs_uM, taxas):
-            df_lista.append({
-                "Peptídeo": nome,
-                "Concentração (µM)": conc,
-                "Crescimento (h⁻¹)": taxa,
-                "IC50 estimada (µM)": round(ic50_val, 2) if ic50_val else "N/A"
-            })
-    df_resultado = pd.DataFrame(df_lista)
 
     return fig, df_resultado
-
-    return fig
