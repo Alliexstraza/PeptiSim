@@ -1,5 +1,5 @@
 import os
-os.environ["PORT"] = os.getenv("PORT", "8501")  # compatível com Streamlit e Render
+os.environ["PORT"] = os.getenv("PORT", "8501")
 
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -8,18 +8,15 @@ import io
 from pipeline.propriedades import analisar_peptideo
 from pipeline.simulador import simular_crescimento_streamlit
 
-# Configuração da página
 st.set_page_config(page_title="Análise de Peptídeos", layout="centered")
 st.title("🧬 Análise de Peptídeos Antibacterianos")
 
-# Inicialização do estado
 if 'page' not in st.session_state:
     st.session_state['page'] = 'input'
 
 if 'figura' not in st.session_state:
     st.session_state['figura'] = None
 
-# Página principal
 if st.session_state['page'] == 'input':
     seq = st.text_input("Digite a sequência do peptídeo (ex: KLFKFFKFFK):")
 
@@ -46,26 +43,27 @@ if st.session_state['page'] == 'input':
                 if kd_M == 0.0:
                     st.warning("Por favor, insira um valor de Kd maior que zero.")
                 else:
-                    st.info("⏳ Rodando simulação...")
-                    try:
-                        fig = simular_crescimento_streamlit(kd_uM, comparar)
-                        st.session_state['figura'] = fig
-                        st.session_state['page'] = 'resultado'
-                        st.experimental_rerun()
-                    except Exception as e:
-                        st.error(f"❌ Erro durante a simulação:\n\n{e}")
+                    with st.spinner("🦫 Capivara calculando o impacto..."):
+                        try:
+                            video_bytes = open("capivara.mp4", "rb").read()
+                            st.video(video_bytes)
+
+                            fig, df_resultado = simular_crescimento_streamlit(kd_uM, comparar)
+                            st.session_state['figura'] = fig
+                            st.session_state['dados_simulacao'] = df_resultado
+
+                            st.session_state['page'] = 'resultado'
+                            st.experimental_rerun()
+                        except Exception as e:
+                            st.error(f"❌ Erro durante a simulação:\n\n{e}")
         except Exception as e:
             st.error(f"❌ Erro na análise do peptídeo:\n\n{e}")
 
-# Página de resultado
 elif st.session_state['page'] == 'resultado':
     st.subheader("📈 Simulação do crescimento bacteriano")
     fig = st.session_state['figura']
-
-    # Exibe o gráfico
     st.pyplot(fig)
 
-    # Prepara imagem para download
     buf = io.BytesIO()
     fig.savefig(buf, format="png")
     buf.seek(0)
@@ -76,8 +74,20 @@ elif st.session_state['page'] == 'resultado':
         file_name="grafico_simulacao.png",
         mime="image/png"
     )
+    # Exportar os dados como CSV
+csv_buffer = io.StringIO()
+st.session_state['dados_simulacao'].to_csv(csv_buffer, index=False)
+csv_buffer.seek(0)
+
+st.download_button(
+    label="📥 Baixar dados da simulação (.csv)",
+    data=csv_buffer,
+    file_name="dados_simulacao_peptideo.csv",
+    mime="text/csv"
+)
 
     if st.button("⬅️ Voltar"):
         st.session_state['page'] = 'input'
         st.session_state['figura'] = None
         st.experimental_rerun()
+
