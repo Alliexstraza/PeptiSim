@@ -23,23 +23,46 @@ def carregar_modelo():
 
 
 def preparar_modelo(model):
+    # Ajustar limites de entrada
     model.reactions.get_by_id("EX_glc__D_e").lower_bound = -10
     model.reactions.get_by_id("EX_o2_e").lower_bound = -20
 
-    # Metabólitos
+    # Metabólitos existentes
     atp = model.metabolites.get_by_id("atp_c")
     adp = model.metabolites.get_by_id("adp_c")
 
-    dna_in = model.metabolites.get("dna_substrato_c") or Metabolite("dna_substrato_c", name="DNA Substrato (pseudo)", compartment="c")
-    dna_out = model.metabolites.get("dna_supercoiling_c") or Metabolite("dna_supercoiling_c", name="DNA Supercoiling (pseudo)", compartment="c")
-    inibidor = model.metabolites.get("inh_peptideo_c") or Metabolite("inh_peptideo_c", name="Peptídeo Inibidor", compartment="c")
-    inh_ext = model.metabolites.get("inh_peptideo_e") or Metabolite("inh_peptideo_e", name="Peptídeo Inibidor (ext)", compartment="e")
-    complexo = model.metabolites.get("girase_inativa_c") or Metabolite("girase_inativa_c", name="Complexo Inativo", compartment="c")
+    # Metabólitos extras: criar só se não existir
+    try:
+        dna_in = model.metabolites.get_by_id("dna_substrato_c")
+    except KeyError:
+        dna_in = Metabolite("dna_substrato_c", name="DNA Substrato (pseudo)", compartment="c")
+        model.add_metabolites([dna_in])
 
-    for m in [dna_in, dna_out, inibidor, inh_ext, complexo]:
-        if m.id not in model.metabolites:
-            model.add_metabolites([m])
+    try:
+        dna_out = model.metabolites.get_by_id("dna_supercoiling_c")
+    except KeyError:
+        dna_out = Metabolite("dna_supercoiling_c", name="DNA Supercoiling (pseudo)", compartment="c")
+        model.add_metabolites([dna_out])
 
+    try:
+        inibidor = model.metabolites.get_by_id("inh_peptideo_c")
+    except KeyError:
+        inibidor = Metabolite("inh_peptideo_c", name="Peptídeo Inibidor", compartment="c")
+        model.add_metabolites([inibidor])
+
+    try:
+        inh_ext = model.metabolites.get_by_id("inh_peptideo_e")
+    except KeyError:
+        inh_ext = Metabolite("inh_peptideo_e", name="Peptídeo Inibidor (ext)", compartment="e")
+        model.add_metabolites([inh_ext])
+
+    try:
+        complexo = model.metabolites.get_by_id("girase_inativa_c")
+    except KeyError:
+        complexo = Metabolite("girase_inativa_c", name="Complexo Inativo", compartment="c")
+        model.add_metabolites([complexo])
+
+    # Reações extras: criar só se não existir
     if "DNA_GIRASE" not in model.reactions:
         girase = Reaction("DNA_GIRASE")
         girase.name = "Atividade da DNA-girase"
@@ -74,9 +97,14 @@ def preparar_modelo(model):
         sequestro.name = "Ligação do inibidor à DNA-girase"
         sequestro.lower_bound = 0
         sequestro.upper_bound = 1000
-        sequestro.add_metabolites({dna_in: -1, inibidor: -1, complexo: 1})
+        sequestro.add_metabolites({
+            dna_in: -1,
+            inibidor: -1,
+            complexo: 1
+        })
         model.add_reactions([sequestro])
 
+    # Biomassa
     biomassa = model.reactions.get_by_id("BIOMASS_Ec_iML1515_core_53p95M")
     if dna_out not in biomassa.metabolites:
         biomassa.add_metabolites({dna_out: -0.01})
