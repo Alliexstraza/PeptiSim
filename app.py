@@ -11,6 +11,9 @@ from pipeline.simulador import simular_crescimento_streamlit
 st.set_page_config(page_title="Análise de Peptídeos", layout="centered")
 st.title("🧬 Análise de Peptídeos Antibacterianos")
 
+if 'dados_simulacao' not in st.session_state:
+    st.session_state['dados_simulacao'] = None
+
 if 'page' not in st.session_state:
     st.session_state['page'] = 'input'
 
