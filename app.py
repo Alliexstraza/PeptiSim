@@ -47,7 +47,6 @@ if st.session_state['page'] == 'input':
                 else:
                     with st.spinner("🦫 Capivara calculando o impacto..."):
                         try:
-                            st.video(open("capivara.mp4", "rb").read())
                             fig, df_resultado = simular_crescimento_streamlit(kd_uM, comparar)
                             st.session_state['figura'] = fig
                             st.session_state['dados_simulacao'] = df_resultado
