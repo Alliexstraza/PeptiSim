@@ -44,14 +44,21 @@ def simular_crescimento_streamlit(kd_uM, comparar=False):
                 "Crescimento (h⁻¹)": taxa
             })
 
+        # Cálculo IC50 corrigido
         taxa_controle = taxas[0]
         meia_taxa = taxa_controle * 0.5
-        try:
-            ic50_val = np.interp(meia_taxa, taxas[::-1], concs_uM[::-1])
-            ic50_label = f"{ic50_val:.2f} µM"
-        except:
-            ic50_val = None
-            ic50_label = "Não detectado"
+
+        ic50_val = None
+        ic50_label = "Não detectado"
+
+        for i in range(1, len(taxas)):
+            t1, t2 = taxas[i-1], taxas[i]
+            if (t1 >= meia_taxa >= t2) or (t1 <= meia_taxa <= t2):
+                x1, x2 = concs_uM[i-1], concs_uM[i]
+                if t2 != t1:  # evitar divisão por zero
+                    ic50_val = x1 + (meia_taxa - t1) * (x2 - x1) / (t2 - t1)
+                    ic50_label = f"{ic50_val:.2f} µM"
+                break
 
         for linha in dados_csv:
             if linha["Peptídeo"] == nome:
@@ -61,6 +68,7 @@ def simular_crescimento_streamlit(kd_uM, comparar=False):
 
     df_resultado = pd.DataFrame(dados_csv)
 
+    # Gráfico
     fig, ax = plt.subplots(figsize=(8, 6))
     for nome, taxas, cor, ic50_val, ic50_label in resultados:
         ax.plot(concs_uM, taxas, marker='o', label=f"{nome} (IC₅₀ ≈ {ic50_label})", color=cor)
