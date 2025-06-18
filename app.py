@@ -11,7 +11,7 @@ from pipeline.simulador import simular_crescimento_streamlit
 
 st.set_page_config(page_title="Análise de Peptídeos", layout="centered")
 
-# Inicializa variáveis de sessão
+# Inicializa sessão
 if 'page' not in st.session_state:
     st.session_state['page'] = 'home'
 if 'figura' not in st.session_state:
@@ -19,16 +19,19 @@ if 'figura' not in st.session_state:
 if 'dados_simulacao' not in st.session_state:
     st.session_state['dados_simulacao'] = None
 
-# Menu lateral
+# Menu lateral com emojis
 st.sidebar.title("Navegação")
-pagina = st.sidebar.radio("Ir para:", ["Home", "Simulador", "❓ Ajuda", "Sobre"])
-st.session_state['page'] = pagina.lower().split()[0]
+pagina = st.sidebar.radio("Ir para:", ["🏠 Home", "⚙️ Simulador", "❓ Ajuda", "ℹ️ Sobre"])
+st.session_state['page'] = pagina.lower().split()[1]  # pega 'home', 'simulador' etc.
 
 # ==========================
 # HOME
 # ==========================
 if st.session_state['page'] == 'home':
+    st.image("logo.svg", width=200)
+    st.image("icone_home.png", width=40)
     st.title("Análise de Peptídeos Antibacterianos")
+
     st.markdown("""
     Bem-vindo ao **Analisador de Peptídeos**!  
     Esta aplicação permite:
@@ -36,15 +39,17 @@ if st.session_state['page'] == 'home':
     - Avaliar propriedades físico-químicas de peptídeos antimicrobianos  
     - Simular o impacto metabólico na *E. coli*  
     - Estimar a eficácia relativa com base em parâmetros de docking
-
-    Acesse a aba **Simulador** para começar a testar seu peptídeo!
     """)
+
+    if st.button("🔬 Ir para o simulador"):
+        st.session_state['page'] = 'simulador'
+        st.experimental_rerun()
 
 # ==========================
 # SIMULADOR
 # ==========================
 elif st.session_state['page'] == 'simulador':
-    st.title("Análise de Peptídeos Antibacterianos")
+    st.title("⚙️ Simulador de Peptídeos Antibacterianos")
 
     seq = st.text_input("Digite a sequência do peptídeo (ex: KLFKFFKFFK):")
 
@@ -52,7 +57,7 @@ elif st.session_state['page'] == 'simulador':
         try:
             props = analisar_peptideo(seq)
 
-            st.subheader("Propriedades físico-químicas")
+            st.subheader("📊 Propriedades físico-químicas")
             st.write(f"**Carga líquida:** {props['carga']}")
             st.write(f"**Hidrofobicidade média:** {props['hidrofobicidade']}")
             st.write(f"**Estabilidade extracelular:** {props['estabilidade_extracelular']}")
@@ -60,7 +65,7 @@ elif st.session_state['page'] == 'simulador':
             st.write(f"**Translocação membrana citoplasmática:** {props['translocacao_membrana_citoplasmatica']}")
             st.write(f"**Pontuação combinada (0 a 1):** {props['pontuacao_combinada']}")
 
-            st.subheader("Parâmetro de Docking")
+            st.subheader("🧪 Parâmetro de Docking")
             kd_M = st.number_input("Informe o Kd (em M):", min_value=1e-12, format="%.2e")
             kd_uM = kd_M * 1e6
             st.write(f"Isso equivale a **{kd_uM:.2f} µM**")
@@ -71,7 +76,7 @@ elif st.session_state['page'] == 'simulador':
                 if kd_M == 0.0:
                     st.warning("Por favor, insira um valor de Kd maior que zero.")
                 else:
-                    with st.spinner("Calculando o impacto..."):
+                    with st.spinner("⏳ Calculando..."):
                         try:
                             fig, df_resultado = simular_crescimento_streamlit(kd_uM, comparar)
                             st.session_state['figura'] = fig
@@ -87,17 +92,15 @@ elif st.session_state['page'] == 'simulador':
 # RESULTADO
 # ==========================
 elif st.session_state['page'] == 'resultado':
-    st.subheader("Simulação do crescimento bacteriano")
+    st.subheader("📈 Simulação do crescimento bacteriano")
     fig = st.session_state['figura']
     st.pyplot(fig)
 
-    # Exportar gráfico
     buf = io.BytesIO()
     fig.savefig(buf, format="png")
     buf.seek(0)
     st.download_button("📥 Baixar gráfico", data=buf, file_name="grafico_simulacao.png", mime="image/png")
 
-    # Exportar CSV
     if st.session_state['dados_simulacao'] is not None:
         csv_buf = io.StringIO()
         st.session_state['dados_simulacao'].to_csv(csv_buf, index=False)
@@ -138,16 +141,17 @@ elif st.session_state['page'] == 'ajuda':
 # SOBRE
 # ==========================
 elif st.session_state['page'] == 'sobre':
-    st.title("Sobre o projeto")
+    st.title("ℹ️ Sobre o projeto")
     st.markdown("""
-    Desenvolvido por **Jéssica Carretone**, doutoranda em Bioquímica 
+    Desenvolvido por **Jéssica Carretone**, doutoranda em Bioquímica.
 
-    Este app integra bioinformática estrutural e simulações metabólicas para prever o potencial antimicrobiano de peptídeos.
+    Esta aplicação integra bioinformática estrutural e simulações metabólicas
+    para prever o potencial antimicrobiano de peptídeos.
 
     ### Tecnologias utilizadas:
     - Python, Streamlit
     - Modelagem metabólica com **COBRApy** e o modelo **iML1515**
     - Análises físico-químicas e docking molecular
 
-    Código-fonte disponível em breve no GitHub
+    Código-fonte disponível em breve no GitHub.
     """)
