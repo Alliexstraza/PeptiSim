@@ -1,15 +1,33 @@
+# Usar imagem oficial Python 3.9 (compatível com suas libs)
 FROM python:3.9-slim
 
+# Evitar perguntas durante instalação de pacotes
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Instalar dependências de sistema necessárias (exemplo comum para libsbml e compilação)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    tar \
+    build-essential \
+    cmake \
+    libsbml5 \
+    libsbml-dev \
+    libxml2-dev \
+    libxslt-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /tmp
+# Criar pasta do app
+WORKDIR /app
 
-RUN curl -L -o highs.tar.gz https://github.com/Alliexstraza/PeptiSim/raw/refs/heads/main/binaries/HiGHS-1.9.0.tar.gz
+# Copiar requirements e instalar dependências Python
+COPY requirements.txt .
 
-# Lista o conteúdo do arquivo compactado sem extrair
-RUN tar -tzf highs.tar.gz
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Copiar todo o código
+COPY . .
+
+# Expõe a porta que o Streamlit usa
+EXPOSE 8501
+
+# Comando para rodar o app
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
