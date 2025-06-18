@@ -29,7 +29,7 @@ st.session_state['page'] = pagina.lower().split()[1]
 # ==========================
 if st.session_state['page'] == 'home':
     if os.path.exists("logo.png"):
-        st.image("logo.svg", width=30)
+        st.image("logo.png", width=30)
     if os.path.exists("icone_home.png"):
         st.image("icone_home.png", width=20)
 
