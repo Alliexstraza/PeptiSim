@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libxslt-dev \
     curl \
+    tar \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala o solver HiGHS (baixado do seu repositório no GitHub)
