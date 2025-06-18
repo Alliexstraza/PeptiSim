@@ -22,14 +22,17 @@ if 'dados_simulacao' not in st.session_state:
 # Menu lateral com emojis
 st.sidebar.title("Navegação")
 pagina = st.sidebar.radio("Ir para:", ["🏠 Home", "⚙️ Simulador", "❓ Ajuda", "ℹ️ Sobre"])
-st.session_state['page'] = pagina.lower().split()[1]  # pega 'home', 'simulador' etc.
+st.session_state['page'] = pagina.lower().split()[1]
 
 # ==========================
 # HOME
 # ==========================
 if st.session_state['page'] == 'home':
-    st.image("logo.svg", width=200)
-    st.image("icone_home.png", width=40)
+    if os.path.exists("logo.svg"):
+        st.image("logo.svg", width=80)
+    if os.path.exists("icone_home.png"):
+        st.image("icone_home.png", width=20)
+
     st.title("Análise de Peptídeos Antibacterianos")
 
     st.markdown("""
@@ -143,7 +146,9 @@ elif st.session_state['page'] == 'ajuda':
 elif st.session_state['page'] == 'sobre':
     st.title("ℹ️ Sobre o projeto")
     st.markdown("""
-    Desenvolvido por **Jéssica Carretone**, doutoranda em Bioquímica.
+    Desenvolvido por **Jéssica Carretone**  
+    Sob orientação do Prof. Dr. **Malson Lucena**
+
 
     Esta aplicação integra bioinformática estrutural e simulações metabólicas
     para prever o potencial antimicrobiano de peptídeos.
