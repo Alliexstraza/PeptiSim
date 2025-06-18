@@ -15,6 +15,20 @@ def calcular_novo_upper_bound(original_ub, Ki, conc):
 
 def simular_crescimento_streamlit(kd_uM, comparar=False):
     model = carregar_modelo()
+
+    # Trocar solver para HiGHS
+    try:
+        model.solver = "highs"
+    except Exception as e:
+        print("Erro ao definir solver highs:", e)
+
+    girase = model.reactions.get_by_id("DNA_GIRASE")
+    original_ub = girase.upper_bound
+    ...
+
+
+def simular_crescimento_streamlit(kd_uM, comparar=False):
+    model = carregar_modelo()
     girase = model.reactions.get_by_id("DNA_GIRASE")
     original_ub = girase.upper_bound
 
