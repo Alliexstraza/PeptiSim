@@ -25,16 +25,26 @@ pagina = st.sidebar.radio("Ir para:", ["🏠 Home", "⚙️ Simulador", "❓ Aju
 st.session_state['page'] = pagina.lower().split()[1]
 
 # ==========================
+# FUNÇÃO DE RODAPÉ
+# ==========================
+def mostrar_rodape():
+    st.markdown("---")
+    st.markdown("### 🔧 Apoio institucional:")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.image("logo.png", width=90, caption="Laboratório")
+    with col2:
+        st.image("ufms.png", width=90, caption="UFMS")
+    with col3:
+        st.image("PMBqBM.png", width=90, caption="PMBqBM")
+
+# ==========================
 # HOME
 # ==========================
 if st.session_state['page'] == 'home':
     if os.path.exists("logo.png"):
-        st.image("logo.png", width=30)
-    if os.path.exists("icone_home.png"):
-        st.image("icone_home.png", width=20)
-
+        st.image("logo.png", width=80)
     st.title("Análise de Peptídeos Antibacterianos")
-
     st.markdown("""
     Bem-vindo ao **Analisador de Peptídeos**!  
     Esta aplicação permite:
@@ -43,10 +53,10 @@ if st.session_state['page'] == 'home':
     - Simular o impacto metabólico na *E. coli*  
     - Estimar a eficácia relativa com base em parâmetros de docking
     """)
-
     if st.button("🔬 Ir para o simulador"):
         st.session_state['page'] = 'simulador'
         st.experimental_rerun()
+    mostrar_rodape()
 
 # ==========================
 # SIMULADOR
@@ -90,6 +100,7 @@ elif st.session_state['page'] == 'simulador':
                             st.error(f"❌ Erro durante a simulação:\n\n{e}")
         except Exception as e:
             st.error(f"❌ Erro na análise do peptídeo:\n\n{e}")
+    mostrar_rodape()
 
 # ==========================
 # RESULTADO
@@ -120,6 +131,8 @@ elif st.session_state['page'] == 'resultado':
         st.session_state['dados_simulacao'] = None
         st.experimental_rerun()
 
+    mostrar_rodape()
+
 # ==========================
 # AJUDA
 # ==========================
@@ -139,6 +152,7 @@ elif st.session_state['page'] == 'ajuda':
     - **Pontuação combinada:** Integra estabilidade extracelular, permeabilidade e translocação
     - Valores mais altos (próximos de 1) indicam maior potencial antimicrobiano
     """)
+    mostrar_rodape()
 
 # ==========================
 # SOBRE
@@ -146,9 +160,8 @@ elif st.session_state['page'] == 'ajuda':
 elif st.session_state['page'] == 'sobre':
     st.title("ℹ️ Sobre o projeto")
     st.markdown("""
-    Desenvolvido por **Jéssica Carretone**  
+    Desenvolvido por **Jéssica Carretone**, doutoranda em Bioquímica  
     Sob orientação do Prof. Dr. **Malson Lucena**
-
 
     Esta aplicação integra bioinformática estrutural e simulações metabólicas
     para prever o potencial antimicrobiano de peptídeos.
@@ -160,3 +173,4 @@ elif st.session_state['page'] == 'sobre':
 
     Código-fonte disponível em breve no GitHub.
     """)
+    mostrar_rodape()
