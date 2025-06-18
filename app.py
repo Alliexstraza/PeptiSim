@@ -140,8 +140,8 @@ elif st.session_state['page'] == 'ajuda':
     st.title("❓ Como usar")
     st.markdown("""
     ### Etapas:
-    1. Digite a sequência do peptídeo (ex: `KLFKFFKFFK`)
-    2. Informe o valor de `Kd` (constante de dissociação), que pode ser obtido via [**PRODIGY**](https://bianca.science.uu.nl/prodigy/):
+    1. Digite a sequência do peptídeo (ex: KLFKFFKFFK)
+    2. Informe o valor de Kd (constante de dissociação), que pode ser obtido via [**PRODIGY**](https://bianca.science.uu.nl/prodigy/):
         - Faça docking entre o peptídeo e a DNA-girase
         - Submeta a estrutura ao PRODIGY para estimar o Kd
 
@@ -160,8 +160,8 @@ elif st.session_state['page'] == 'ajuda':
 elif st.session_state['page'] == 'sobre':
     st.title("ℹ️ Sobre o projeto")
     st.markdown("""
-    Desenvolvido por **Jéssica Carretone**, doutoranda em Bioquímica  
-    Sob orientação do Prof. Dr. **Malson Lucena**
+    Desenvolvido por Jéssica Carretone  
+    Sob orientação do Prof. Dr. Malson Lucena
 
     Esta aplicação integra bioinformática estrutural e simulações metabólicas
     para prever o potencial antimicrobiano de peptídeos.
